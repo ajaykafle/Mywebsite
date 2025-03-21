@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Users</title>
+    
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAanJ9JJ7wNfha2vX2k0slZF6qcfxNERj0",
+            authDomain: "canvas-55c31.firebaseapp.com",
+            projectId: "canvas-55c31",
+            storageBucket: "canvas-55c31.firebasestorage.app",
+            messagingSenderId: "744324241059",
+            appId: "1:744324241059:web:4914e76d1436bcfc659116",
+            measurementId: "G-NTK4L0L5P8",
+            databaseURL: "https://canvas-55c31-default-rtdb.firebaseio.com/"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const db = getDatabase();
+
+        // Track User Online Status
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const userRef = ref(db, "users/" + user.uid);
+                set(userRef, { email: user.email });
+
+                window.addEventListener("beforeunload", () => {
+                    remove(userRef);
+                });
+            }
+        });
+
+        // Load Only Online Users
+        function loadOnlineUsers() {
+            const usersRef = ref(db, "users/");
+            onValue(usersRef, (snapshot) => {
+                const onlineUsersList = document.getElementById("onlineUsers");
+                onlineUsersList.innerHTML = ""; // Clear list
+
+                snapshot.forEach((childSnapshot) => {
+                    const user = childSnapshot.val();
+                    onlineUsersList.innerHTML += `<li class="user-item">${user.email}</li>`;
+                });
+            });
+        }
+
+        // Load users on page load
+        window.onload = loadOnlineUsers;
+    </script>
+
+    <style>
+        /* General Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        /* Back Arrow */
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .back-arrow:hover {
+            transform: translateX(-5px);
+        }
+
+        /* Container */
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        /* User List */
+        .users-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .user-item {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background 0.3s ease-in-out;
+        }
+
+        .user-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="dash.html" class="back-arrow">⬅</a>
+
+    <div class="container">
+        <h2>🟢 Online Users</h2>
+        <ul id="onlineUsers" class="users-list"></ul>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Image Collection</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #121212;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        /* Back Arrow */
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .back-arrow:hover {
+            color: #ff4500;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .gallery-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .image-card {
+            background: #1e1e1e;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 300px;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+        .image-card:hover {
+            transform: scale(1.05);
+        }
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .image-info {
+            padding: 15px;
+        }
+        .image-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Arrow -->
+    <a href="dash.html" class="back-arrow">
+        <i class="fas fa-arrow-left" style="color: white;"></i>
+    </a>
+
+    <h2>Image Gallery</h2>
+    <div class="gallery-container" id="imageGallery"></div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAanJ9JJ7wNfha2vX2k0slZF6qcfxNERj0",
+            authDomain: "canvas-55c31.firebaseapp.com",
+            projectId: "canvas-55c31",
+            storageBucket: "canvas-55c31.firebasestorage.app",
+            messagingSenderId: "744324241059",
+            appId: "1:744324241059:web:4914e76d1436bcfc659116",
+            measurementId: "G-NTK4L0L5P8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const imagesRef = ref(database, "images");
+
+        function loadImages() {
+            onValue(imagesRef, (snapshot) => {
+                const gallery = document.getElementById("imageGallery");
+                gallery.innerHTML = "";
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const imageData = childSnapshot.val();
+
+                        const card = document.createElement("div");
+                        card.classList.add("image-card");
+
+                        card.innerHTML = `
+                            <img src="${imageData.url}" alt="${imageData.title}">
+                            <div class="image-info">
+                                <div class="image-title">${imageData.title}</div>
+                            </div>
+                        `;
+
+                        gallery.appendChild(card);
+                    });
+                }
+            });
+        }
+
+        loadImages();
+    </script>
+
+</body>
+</html>

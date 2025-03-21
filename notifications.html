@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f8f3;
+        }
+
+        .return-arrow {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #1c2a44;
+            z-index: 10; /* Ensure the arrow stays above other content */
+        }
+
+        .return-arrow:hover {
+            color: #243e6d;
+        }
+
+        .notification-list {
+            margin: 50px 20px 20px 20px; /* Adjust margin to make room for the arrow */
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-item p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="return-arrow" onclick="window.location.href='dash.html'">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+
+    <div class="notification-list" id="notificationList">
+        <h2>Notifications</h2>
+        <!-- Notifications will be dynamically loaded here -->
+    </div>
+
+    <!-- Firebase CDN (using Firebase 9+ modular SDK) -->
+    <script type="module">
+        // Import necessary Firebase SDKs
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAanJ9JJ7wNfha2vX2k0slZF6qcfxNERj0",
+            authDomain: "canvas-55c31.firebaseapp.com",
+            projectId: "canvas-55c31",
+            storageBucket: "canvas-55c31.firebasestorage.app",
+            messagingSenderId: "744324241059",
+            appId: "1:744324241059:web:4914e76d1436bcfc659116",
+            measurementId: "G-NTK4L0L5P8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // Get Firestore instance
+        const db = getFirestore(app);
+
+        // Function to get notifications
+        async function getNotifications() {
+            const querySnapshot = await getDocs(collection(db, "notifications"));
+            const notificationList = document.getElementById('notificationList');
+
+            querySnapshot.forEach((doc) => {
+                const notification = doc.data();
+                const div = document.createElement('div');
+                div.classList.add('notification-item');
+                div.innerHTML = `<p>${notification.message}</p>`;
+                notificationList.appendChild(div);
+            });
+        }
+
+        // Call the function to fetch notifications when the page is loaded
+        getNotifications();
+    </script>
+</body>
+</html>

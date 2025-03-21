@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(to right, #FF5722, #FF7043);
+            color: white;
+            padding: 15px;
+            font-size: 22px;
+            position: relative;
+            font-weight: bold;
+        }
+
+        .back-arrow {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            max-width: 500px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Delete Button */
+        .delete-btn {
+            background: linear-gradient(to right, #FF5722, #FF7043);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .delete-btn:hover {
+            background: linear-gradient(to right, #E64A19, #D84315);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="dash.html" class="back-arrow">&#8592; Back</a>
+        <h1>Admin Panel</h1>
+    </header>
+
+    <div class="container">
+        <h2>Delete All Messages</h2>
+        <button class="delete-btn" id="delete-all">Delete All Chats</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAanJ9JJ7wNfha2vX2k0slZF6qcfxNERj0",
+            authDomain: "canvas-55c31.firebaseapp.com",
+            projectId: "canvas-55c31",
+            storageBucket: "canvas-55c31.firebasestorage.app",
+            messagingSenderId: "744324241059",
+            appId: "1:744324241059:web:4914e76d1436bcfc659116",
+            measurementId: "G-NTK4L0L5P8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const deleteButton = document.getElementById("delete-all");
+
+        deleteButton.addEventListener("click", async () => {
+            if (confirm("Are you sure you want to delete all messages? This action cannot be undone!")) {
+                const messagesRef = collection(db, "messages");
+                const snapshot = await getDocs(messagesRef);
+
+                snapshot.forEach(async (docItem) => {
+                    await deleteDoc(doc(messagesRef, docItem.id));
+                });
+
+                alert("All messages have been deleted successfully!");
+            }
+        });
+    </script>
+
+</body>
+</html>
